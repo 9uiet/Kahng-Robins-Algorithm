@@ -100,7 +100,9 @@ def kahng_robins(terminals: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Poi
         for candidate in candidates:
             if candidate in point_set:
                 continue
-            length = compute_mst_length(points + [candidate])
+            points.append(candidate)
+            length = compute_mst_length(points)
+            points.pop()
             if length < best_length:
                 best_length = length
                 best_candidate = candidate
