@@ -9,15 +9,18 @@ import time
 from pathlib import Path
 from typing import Iterable, List, Sequence, Tuple
 
+# 基本类型定义：点、线段、路由
 Point = Tuple[int, int]
 Segment = Tuple[Point, Point]
 Route = Tuple[str, List[Point], List[Segment]]
 
 
+# 计算两点的曼哈顿距离
 def manhattan(a: Point, b: Point) -> int:
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 
+# 使用Prim算法计算最小生成树及其边集合
 def compute_mst(points: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Point]]]:
     if not points:
         return 0, []
@@ -53,6 +56,7 @@ def compute_mst(points: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Point]]
     return total, edges
 
 
+# 仅计算最小生成树的总长度
 def compute_mst_length(points: Sequence[Point]) -> int:
     if not points:
         return 0
@@ -83,6 +87,7 @@ def compute_mst_length(points: Sequence[Point]) -> int:
     return total
 
 
+# 构建距离矩阵，用于复用曼哈顿距离
 def build_distance_matrix(points: Sequence[Point]) -> List[List[int]]:
     """Return full pairwise Manhattan distance matrix (O(n^2) memory)."""
     size = len(points)
@@ -95,6 +100,7 @@ def build_distance_matrix(points: Sequence[Point]) -> List[List[int]]:
     return distances
 
 
+# 使用距离矩阵加速最小生成树长度计算
 def compute_mst_length_cached(indices: List[int], distances: List[List[int]]) -> int:
     """Compute MST length using precomputed distances indexed by matrix positions."""
     if not indices:
@@ -127,12 +133,14 @@ def compute_mst_length_cached(indices: List[int], distances: List[List[int]]) ->
     return total
 
 
+# 基于终端点坐标生成Hanan网格候选点
 def hanan_grid(terminals: Sequence[Point]) -> List[Point]:
     xs = sorted({x for x, _ in terminals})
     ys = sorted({y for _, y in terminals})
     return [(x, y) for x in xs for y in ys]
 
 
+# Kahng/Robins算法：迭代插入1-Steiner点（含候选缓存）
 def kahng_robins(terminals: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Point]]]:
     """Compute routing with iterative 1-Steiner insertion on the Hanan grid."""
     unique_terminals = list(dict.fromkeys(terminals))
@@ -173,6 +181,7 @@ def kahng_robins(terminals: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Poi
     return final_length, final_edges
 
 
+# 将最小生成树边分解为曼哈顿折线路段
 def rectilinearize(edges: Iterable[Tuple[Point, Point]]) -> List[Segment]:
     segments: List[Segment] = []
     for start, end in edges:
@@ -185,6 +194,7 @@ def rectilinearize(edges: Iterable[Tuple[Point, Point]]) -> List[Segment]:
     return segments
 
 
+# 解析.nets输入文件，返回网格大小、网络数量与端点
 def parse_nets(path: Path) -> Tuple[int, int, List[Tuple[str, List[Point]]]]:
     grid_size = None
     net_count = None
@@ -219,12 +229,14 @@ def parse_nets(path: Path) -> Tuple[int, int, List[Tuple[str, List[Point]]]]:
     return grid_size, net_count, nets
 
 
+# 格式化线段列表为输出字符串
 def format_segments(segments: Sequence[Segment]) -> str:
     return " ".join(
         f"({x1},{y1}),({x2},{y2})" for (x1, y1), (x2, y2) in segments
     )
 
 
+# 写入.routing输出文件
 def write_output(
     path: Path, grid_size: int, net_count: int, routed: List[Tuple[str, List[Segment]]]
 ) -> None:
@@ -234,6 +246,7 @@ def write_output(
     path.write_text("\n".join(lines) + "\n")
 
 
+# 输出SVG可视化文件
 def write_svg(path: Path, grid_size: int, routes: Sequence[Route]) -> None:
     cell = 20
     margin = 20
@@ -251,6 +264,7 @@ def write_svg(path: Path, grid_size: int, routes: Sequence[Route]) -> None:
     ]
 
     def to_svg(point: Point) -> Tuple[int, int]:
+        # 输入坐标为1-based，SVG的y轴方向相反
         # Input coordinates are 1-based; SVG y-axis is inverted.
         x = margin + (point[0] - 1) * cell
         y = margin + (grid_size - point[1]) * cell
@@ -302,6 +316,7 @@ def write_svg(path: Path, grid_size: int, routes: Sequence[Route]) -> None:
     path.write_text("\n".join(lines) + "\n")
 
 
+# 命令行入口
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Steiner routing with Kahng/Robins 1-Steiner insertion using Hanan Grid optimization."
