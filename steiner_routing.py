@@ -209,12 +209,17 @@ def write_svg(path: Path, grid_size: int, routes: Sequence[Route]) -> None:
         f'<rect width="{width}" height="{height}" fill="white" stroke="black" />',
     ]
 
-    for i in range(grid_size):
-        pos = margin + i * cell
+    grid_xs = sorted({x for _, terminals, _ in routes for x, _ in terminals})
+    grid_ys = sorted({y for _, terminals, _ in routes for _, y in terminals})
+
+    for x in grid_xs:
+        pos = margin + (x - 1) * cell
         lines.append(
             f'<line x1="{pos}" y1="{margin}" x2="{pos}" y2="{height - margin}" '
             'stroke="#e0e0e0" stroke-width="1" />'
         )
+    for y in grid_ys:
+        pos = margin + (grid_size - y) * cell
         lines.append(
             f'<line x1="{margin}" y1="{pos}" x2="{width - margin}" y2="{pos}" '
             'stroke="#e0e0e0" stroke-width="1" />'
