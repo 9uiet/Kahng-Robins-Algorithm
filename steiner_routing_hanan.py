@@ -83,6 +83,48 @@ def compute_mst_length(points: Sequence[Point]) -> int:
     return total
 
 
+def build_distance_matrix(points: Sequence[Point]) -> List[List[int]]:
+    size = len(points)
+    distances = [[0] * size for _ in range(size)]
+    for i in range(size):
+        for j in range(i + 1, size):
+            dist = manhattan(points[i], points[j])
+            distances[i][j] = dist
+            distances[j][i] = dist
+    return distances
+
+
+def compute_mst_length_cached(indices: Sequence[int], distances: Sequence[Sequence[int]]) -> int:
+    if not indices:
+        return 0
+    n = len(indices)
+    in_tree = [False] * n
+    min_dist = [float("inf")] * n
+    min_dist[0] = 0
+    total = 0
+
+    for _ in range(n):
+        u = -1
+        best = float("inf")
+        for i in range(n):
+            if not in_tree[i] and min_dist[i] < best:
+                best = min_dist[i]
+                u = i
+        if u == -1:
+            break
+        in_tree[u] = True
+        total += min_dist[u]
+        u_index = indices[u]
+        for v in range(n):
+            if in_tree[v]:
+                continue
+            dist = distances[u_index][indices[v]]
+            if dist < min_dist[v]:
+                min_dist[v] = dist
+
+    return total
+
+
 def hanan_grid(terminals: Sequence[Point]) -> List[Point]:
     xs = sorted({x for x, _ in terminals})
     ys = sorted({y for _, y in terminals})
@@ -99,23 +141,30 @@ def kahng_robins(terminals: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Poi
         for candidate in hanan_grid(unique_terminals)
         if candidate not in point_set
     ]
+    all_points = unique_terminals + candidates
+    index_map = {point: index for index, point in enumerate(all_points)}
+    candidate_indices = [index_map[candidate] for candidate in candidates]
+    current_indices = [index_map[point] for point in points]
+    distances = build_distance_matrix(all_points)
 
-    current_length, _ = compute_mst(points)
+    current_length = compute_mst_length_cached(current_indices, distances)
     while True:
         best_length = current_length
         best_candidate_index: int | None = None
-        for index, candidate in enumerate(candidates):
-            points.append(candidate)
-            length = compute_mst_length(points)
-            points.pop()
+        for index, candidate_index in enumerate(candidate_indices):
+            length = compute_mst_length_cached(
+                current_indices + [candidate_index], distances
+            )
             if length < best_length:
                 best_length = length
                 best_candidate_index = index
         if best_candidate_index is None:
             break
         best_candidate = candidates.pop(best_candidate_index)
+        best_candidate_index_value = candidate_indices.pop(best_candidate_index)
         points.append(best_candidate)
         point_set.add(best_candidate)
+        current_indices.append(best_candidate_index_value)
         current_length = best_length
 
     final_length, final_edges = compute_mst(points)
