@@ -273,9 +273,15 @@ def main() -> int:
     write_output(output_path, grid_size, net_count, routed_segments)
     print(f"Output written to: {output_path}")
 
-    image_path = input_path.with_suffix(".routing.svg")
+    image_dir = input_path.with_suffix("")
+    image_dir.mkdir(parents=True, exist_ok=True)
+
+    image_path = image_dir / f"{input_path.stem}.routing.svg"
     write_svg(image_path, grid_size, routed_routes)
-    print(f"Image written to: {image_path}")
+    for name, terminals, segments in routed_routes:
+        net_path = image_dir / f"{name}.svg"
+        write_svg(net_path, grid_size, [(name, terminals, segments)])
+    print(f"Images written to: {image_dir}")
 
     elapsed = time.perf_counter() - start_time
     ru_maxrss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
