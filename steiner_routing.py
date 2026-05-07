@@ -209,7 +209,6 @@ def write_svg(path: Path, grid_size: int, routes: Sequence[Route]) -> None:
 
     def to_svg(point: Point) -> Tuple[int, int]:
         # 输入坐标为1-based，SVG的y轴方向相反
-        # Input coordinates are 1-based; SVG y-axis is inverted.
         x = margin + (point[0] - 1) * cell
         y = margin + (grid_size - point[1]) * cell
         return x, y
