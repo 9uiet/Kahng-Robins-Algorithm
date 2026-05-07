@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import re
 import resource
+import sys
 import time
 from pathlib import Path
 from typing import Iterable, List, Sequence, Tuple
@@ -206,9 +207,10 @@ def main() -> int:
     print(f"Output written to: {output_path}")
 
     elapsed = time.perf_counter() - start_time
-    max_rss_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    ru_maxrss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    max_rss_kb = ru_maxrss / 1024 if sys.platform == "darwin" else ru_maxrss
     print(f"Runtime: {elapsed:.6f}s")
-    print(f"Memory usage: {max_rss_kb} KB")
+    print(f"Memory usage: {max_rss_kb:.0f} KB")
 
     return 0
 
