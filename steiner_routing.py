@@ -89,6 +89,7 @@ def hanan_grid(terminals: Sequence[Point]) -> List[Point]:
 
 
 def kahng_robins(terminals: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Point]]]:
+    """Compute routing with iterative 1-Steiner insertion on the Hanan grid."""
     unique_terminals = list(dict.fromkeys(terminals))
     points: List[Point] = list(unique_terminals)
     point_set = set(points)
