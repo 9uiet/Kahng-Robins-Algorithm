@@ -135,7 +135,7 @@ def parse_nets(path: Path) -> Tuple[int, int, List[Tuple[str, List[Point]]]]:
         line = raw_line.strip()
         if not line:
             continue
-        line = re.sub(r"^\\d+\\.\\s*", "", line)
+        line = re.sub(r"^\d+\.\s*", "", line)
         if grid_size is None:
             parts = line.split()
             if len(parts) < 2:
@@ -143,13 +143,13 @@ def parse_nets(path: Path) -> Tuple[int, int, List[Tuple[str, List[Point]]]]:
             grid_size = int(parts[0])
             net_count = int(parts[1])
             continue
-        match = re.match(r"^(\\S+)\\s*\\[", line)
+        match = re.match(r"^(\S+)\s*\[", line)
         if not match:
             raise ValueError(f"Invalid net line: {raw_line}")
         name = match.group(1)
         points = [
             (int(x), int(y))
-            for x, y in re.findall(r"\\((-?\\d+)\\s*,\\s*(-?\\d+)\\)", line)
+            for x, y in re.findall(r"\((-?\d+)\s*,\s*(-?\d+)\)", line)
         ]
         if not points:
             raise ValueError(f"No points found for net {name}")
