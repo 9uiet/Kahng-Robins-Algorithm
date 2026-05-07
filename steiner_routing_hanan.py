@@ -23,7 +23,7 @@ def compute_mst(points: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Point]]
         return 0, []
     n = len(points)
     in_tree = [False] * n
-    min_dist = [sys.maxsize] * n
+    min_dist = [float("inf")] * n
     parent = [-1] * n
     min_dist[0] = 0
     total = 0
@@ -31,7 +31,7 @@ def compute_mst(points: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Point]]
 
     for _ in range(n):
         u = -1
-        best = sys.maxsize
+        best = float("inf")
         for i in range(n):
             if not in_tree[i] and min_dist[i] < best:
                 best = min_dist[i]
@@ -58,13 +58,13 @@ def compute_mst_length(points: Sequence[Point]) -> int:
         return 0
     n = len(points)
     in_tree = [False] * n
-    min_dist = [sys.maxsize] * n
+    min_dist = [float("inf")] * n
     min_dist[0] = 0
     total = 0
 
     for _ in range(n):
         u = -1
-        best = sys.maxsize
+        best = float("inf")
         for i in range(n):
             if not in_tree[i] and min_dist[i] < best:
                 best = min_dist[i]
@@ -101,13 +101,13 @@ def compute_mst_length_cached(indices: Sequence[int], distances: Sequence[Sequen
         return 0
     n = len(indices)
     in_tree = [False] * n
-    min_dist = [sys.maxsize] * n
+    min_dist = [float("inf")] * n
     min_dist[0] = 0
     total = 0
 
     for _ in range(n):
         u = -1
-        best = sys.maxsize
+        best = float("inf")
         for i in range(n):
             if not in_tree[i] and min_dist[i] < best:
                 best = min_dist[i]
