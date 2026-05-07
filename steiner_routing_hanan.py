@@ -99,13 +99,13 @@ def compute_mst_length_cached(indices: Sequence[int], distances: Sequence[Sequen
         return 0
     n = len(indices)
     in_tree = [False] * n
-    min_dist = [float("inf")] * n
+    min_dist = [sys.maxsize] * n
     min_dist[0] = 0
     total = 0
 
     for _ in range(n):
         u = -1
-        best = float("inf")
+        best = sys.maxsize
         for i in range(n):
             if not in_tree[i] and min_dist[i] < best:
                 best = min_dist[i]
@@ -152,19 +152,19 @@ def kahng_robins(terminals: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Poi
         best_length = current_length
         best_candidate_index: int | None = None
         for index, candidate_index in enumerate(candidate_indices):
-            length = compute_mst_length_cached(
-                current_indices + [candidate_index], distances
-            )
+            current_indices.append(candidate_index)
+            length = compute_mst_length_cached(current_indices, distances)
+            current_indices.pop()
             if length < best_length:
                 best_length = length
                 best_candidate_index = index
         if best_candidate_index is None:
             break
         best_candidate = candidates.pop(best_candidate_index)
-        best_candidate_index_value = candidate_indices.pop(best_candidate_index)
+        best_candidate_matrix_index = candidate_indices.pop(best_candidate_index)
         points.append(best_candidate)
         point_set.add(best_candidate)
-        current_indices.append(best_candidate_index_value)
+        current_indices.append(best_candidate_matrix_index)
         current_length = best_length
 
     final_length, final_edges = compute_mst(points)
