@@ -94,23 +94,26 @@ def kahng_robins(terminals: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Poi
     unique_terminals = list(dict.fromkeys(terminals))
     points: List[Point] = list(unique_terminals)
     point_set = set(points)
-    candidates = hanan_grid(unique_terminals)
+    candidates = [
+        candidate
+        for candidate in hanan_grid(unique_terminals)
+        if candidate not in point_set
+    ]
 
     current_length, _ = compute_mst(points)
     while True:
         best_length = current_length
-        best_candidate: Point | None = None
-        for candidate in candidates:
-            if candidate in point_set:
-                continue
+        best_index: int | None = None
+        for index, candidate in enumerate(candidates):
             points.append(candidate)
             length = compute_mst_length(points)
             points.pop()
             if length < best_length:
                 best_length = length
-                best_candidate = candidate
-        if best_candidate is None:
+                best_index = index
+        if best_index is None:
             break
+        best_candidate = candidates.pop(best_index)
         points.append(best_candidate)
         point_set.add(best_candidate)
         current_length = best_length
