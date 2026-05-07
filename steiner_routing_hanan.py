@@ -23,7 +23,7 @@ def compute_mst(points: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Point]]
         return 0, []
     n = len(points)
     in_tree = [False] * n
-    min_dist = [float("inf")] * n
+    min_dist = [sys.maxsize] * n
     parent = [-1] * n
     min_dist[0] = 0
     total = 0
@@ -31,7 +31,7 @@ def compute_mst(points: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Point]]
 
     for _ in range(n):
         u = -1
-        best = float("inf")
+        best = sys.maxsize
         for i in range(n):
             if not in_tree[i] and min_dist[i] < best:
                 best = min_dist[i]
@@ -58,13 +58,13 @@ def compute_mst_length(points: Sequence[Point]) -> int:
         return 0
     n = len(points)
     in_tree = [False] * n
-    min_dist = [float("inf")] * n
+    min_dist = [sys.maxsize] * n
     min_dist[0] = 0
     total = 0
 
     for _ in range(n):
         u = -1
-        best = float("inf")
+        best = sys.maxsize
         for i in range(n):
             if not in_tree[i] and min_dist[i] < best:
                 best = min_dist[i]
@@ -101,13 +101,13 @@ def compute_mst_length_cached(indices: Sequence[int], distances: Sequence[Sequen
         return 0
     n = len(indices)
     in_tree = [False] * n
-    min_dist = [float("inf")] * n
+    min_dist = [sys.maxsize] * n
     min_dist[0] = 0
     total = 0
 
     for _ in range(n):
         u = -1
-        best = float("inf")
+        best = sys.maxsize
         for i in range(n):
             if not in_tree[i] and min_dist[i] < best:
                 best = min_dist[i]
@@ -116,11 +116,11 @@ def compute_mst_length_cached(indices: Sequence[int], distances: Sequence[Sequen
             break
         in_tree[u] = True
         total += min_dist[u]
-        u_index = indices[u]
+        u_matrix_index = indices[u]
         for v in range(n):
             if in_tree[v]:
                 continue
-            dist = distances[u_index][indices[v]]
+            dist = distances[u_matrix_index][indices[v]]
             if dist < min_dist[v]:
                 min_dist[v] = dist
 
