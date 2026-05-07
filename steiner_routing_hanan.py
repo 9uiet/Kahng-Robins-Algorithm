@@ -23,7 +23,7 @@ def compute_mst(points: Sequence[Point]) -> Tuple[int, List[Tuple[Point, Point]]
         return 0, []
     n = len(points)
     in_tree = [False] * n
-    min_dist: List[float] = [float("inf")] * n
+    min_dist = [float("inf")] * n
     parent = [-1] * n
     min_dist[0] = 0
     total = 0
@@ -58,7 +58,7 @@ def compute_mst_length(points: Sequence[Point]) -> int:
         return 0
     n = len(points)
     in_tree = [False] * n
-    min_dist: List[float] = [float("inf")] * n
+    min_dist = [float("inf")] * n
     min_dist[0] = 0
     total = 0
 
@@ -101,7 +101,7 @@ def compute_mst_length_cached(indices: List[int], distances: List[List[int]]) ->
         return 0
     n = len(indices)
     in_tree = [False] * n
-    min_dist: List[float] = [float("inf")] * n
+    min_dist = [float("inf")] * n
     min_dist[0] = 0
     total = 0
 
