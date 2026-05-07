@@ -11,6 +11,7 @@ from typing import Iterable, List, Sequence, Tuple
 
 Point = Tuple[int, int]
 Segment = Tuple[Point, Point]
+Route = Tuple[str, List[Point], List[Segment]]
 
 
 def manhattan(a: Point, b: Point) -> int:
@@ -179,6 +180,68 @@ def write_output(
     path.write_text("\n".join(lines) + "\n")
 
 
+def write_svg(path: Path, grid_size: int, routes: Sequence[Route]) -> None:
+    cell = 20
+    margin = 20
+    width = (grid_size - 1) * cell + margin * 2
+    height = (grid_size - 1) * cell + margin * 2
+    palette = [
+        "#e41a1c",
+        "#377eb8",
+        "#4daf4a",
+        "#984ea3",
+        "#ff7f00",
+        "#a65628",
+        "#f781bf",
+        "#999999",
+    ]
+
+    def to_svg(point: Point) -> Tuple[int, int]:
+        x = margin + (point[0] - 1) * cell
+        y = margin + (grid_size - point[1]) * cell
+        return x, y
+
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+        f'viewBox="0 0 {width} {height}">',
+        f'<rect width="{width}" height="{height}" fill="white" stroke="black" />',
+    ]
+
+    for i in range(grid_size):
+        pos = margin + i * cell
+        lines.append(
+            f'<line x1="{pos}" y1="{margin}" x2="{pos}" y2="{height - margin}" '
+            'stroke="#e0e0e0" stroke-width="1" />'
+        )
+        lines.append(
+            f'<line x1="{margin}" y1="{pos}" x2="{width - margin}" y2="{pos}" '
+            'stroke="#e0e0e0" stroke-width="1" />'
+        )
+
+    for index, (name, terminals, segments) in enumerate(routes):
+        color = palette[index % len(palette)]
+        for start, end in segments:
+            x1, y1 = to_svg(start)
+            x2, y2 = to_svg(end)
+            lines.append(
+                f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" '
+                f'stroke="{color}" stroke-width="2" />'
+            )
+        for point in terminals:
+            x, y = to_svg(point)
+            lines.append(
+                f'<circle cx="{x}" cy="{y}" r="4" fill="{color}" stroke="black" />'
+            )
+        lines.append(
+            f'<text x="{margin}" y="{15 + index * 14}" font-size="12" '
+            f'fill="{color}">{name}</text>'
+        )
+
+    lines.append("</svg>")
+    path.write_text("\n".join(lines) + "\n")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Steiner routing with Kahng/Robins 1-Steiner insertion."
@@ -192,6 +255,7 @@ def main() -> int:
     grid_size, net_count, nets = parse_nets(input_path)
 
     routed_segments: List[Tuple[str, List[Segment]]] = []
+    routed_routes: List[Route] = []
     total_length = 0
 
     for name, terminals in nets:
@@ -199,6 +263,7 @@ def main() -> int:
         total_length += wirelength
         segments = rectilinearize(edges)
         routed_segments.append((name, segments))
+        routed_routes.append((name, terminals, segments))
         print(f"Net {name}: {wirelength}")
 
     print(f"Total wirelength: {total_length}")
@@ -206,6 +271,10 @@ def main() -> int:
     output_path = input_path.with_suffix(".routing")
     write_output(output_path, grid_size, net_count, routed_segments)
     print(f"Output written to: {output_path}")
+
+    image_path = input_path.with_suffix(".routing.svg")
+    write_svg(image_path, grid_size, routed_routes)
+    print(f"Image written to: {image_path}")
 
     elapsed = time.perf_counter() - start_time
     ru_maxrss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
