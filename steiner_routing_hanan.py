@@ -84,6 +84,7 @@ def compute_mst_length(points: Sequence[Point]) -> int:
 
 
 def build_distance_matrix(points: Sequence[Point]) -> List[List[int]]:
+    """Return full pairwise Manhattan distance matrix (O(n^2) memory)."""
     size = len(points)
     distances = [[0] * size for _ in range(size)]
     for i in range(size):
@@ -95,6 +96,7 @@ def build_distance_matrix(points: Sequence[Point]) -> List[List[int]]:
 
 
 def compute_mst_length_cached(indices: Sequence[int], distances: Sequence[Sequence[int]]) -> int:
+    """Compute MST length using precomputed distances indexed by matrix positions."""
     if not indices:
         return 0
     n = len(indices)
